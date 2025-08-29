@@ -4,6 +4,7 @@ set :slicer_pos, 0.0
 
 with_fx :panslicer, wave: 3, mix: get(:sendB_5) do
   live_loop :slicer do
+    use_bpm get(:master_bpm)
     if get(:part_5_on)
       
       # Get the current start position
@@ -13,6 +14,7 @@ with_fx :panslicer, wave: 3, mix: get(:sendB_5) do
       32.times do
         # FIX 2: Use the correct variable name: :part_3_amp
         sample :loop_breakbeat,
+          beat_stretch: 8,
           start: s,
           finish: s + 0.01,
           amp: get(:amp_5)*rrand(2, 4),
@@ -31,10 +33,7 @@ with_fx :panslicer, wave: 3, mix: get(:sendB_5) do
       
     end
     
-    
-    rate_control = [get(:sendA_5), 0.01].max #Prevent division by zero.
-    
-    sleep (32 * 0.025) / (rate_control * 20)
+    sleep 2
     
   end
 end
