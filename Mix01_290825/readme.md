@@ -1,0 +1,1 @@
+This is ment to use with a midi controller, now is set with a launch control xl with sendA to ch 1-8 sendB 9-17 pan/device 18-25 and so on on cronological order, for more information view the buffer0.
