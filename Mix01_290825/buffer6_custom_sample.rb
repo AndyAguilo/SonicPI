@@ -6,12 +6,13 @@ samp38 = "/Volumes/C001/samples/r-38.wav"
 with_fx :slicer do |s|
   
   live_loop :sample_mio  do
+    use_bpm get(:master_bpm)
     control s, phase: (get(:sendA_6)+0.01)
     
     if get(:part_6_on)
-      sample samp38, amp: get(:amp_6), pan: get(:pan_6), rate: 1 + get(:sendA_2)
+      sample samp38, amp: get(:amp_6), pan: get(:pan_6), beat_stretch: 8
     end
     
-    sleep get(:sendA_2) * sample_duration(samp38)/2
+    sleep 8
   end
 end

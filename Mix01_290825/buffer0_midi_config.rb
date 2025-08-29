@@ -12,6 +12,7 @@ LED_RED = 15
 LED_GREEN = 60
 
 # --- INITIAL SETUP ---
+set :master_bpm, 120
 puts "Initializing 8 parts with full controls and setting LED states..."
 8.times do |i|
   part_number = i + 1
@@ -101,4 +102,22 @@ live_loop :midi_master_controller do
       midi_raw STATUS_BYTE_CH1, play_button_cc, LED_RED, port: MIDI_PORT
     end
   end
+end
+
+
+# --- BPM Conductor Loop ---
+# This loop's only job is to read the generic :sendA_1 value
+# and translate it into a master BPM for all other loops to use.
+live_loop :bpm_conductor do
+  # Get the current value of the first knob (0.0 to 1.0)
+  bpm_control_value = get(:sendA_1)
+
+  # Map that value to a usable BPM range (e.g., 60-180 BPM)
+  new_bpm = (bpm_control_value * 120) + 60
+
+  # Set the global master_bpm variable
+  set :master_bpm, new_bpm
+
+  # This loop runs quickly to be responsive, but not so fast it hogs the CPU.
+  sleep 0.1
 end

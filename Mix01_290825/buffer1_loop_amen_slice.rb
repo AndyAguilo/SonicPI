@@ -6,12 +6,13 @@
 with_fx :reverb, mix: 0.5, room: 0.6 do |rev|
   # --- The Main Slicer Loop ---
   live_loop :drums_slicer do
+    use_bpm get(:master_bpm)
     # Use the master on/off switch for this part
     if get(:part_1_on)
       
       # --- DYNAMIC MIDI CONTROL ---
       # Remap SendB to control the Reverb mix, making it more atmospheric
-      control rev, mix: get(:sendB_1), room: get(:sendA_1)
+      control rev, mix: get(:sendB_1), room: 0.5 # sendA_1 is now BPM
       
       # Play 8 slices over 2 beats to create a funky, syncopated rhythm
       8.times do
@@ -29,9 +30,9 @@ with_fx :reverb, mix: 0.5, room: 0.6 do |rev|
           amp: get(:amp_1)*rrand(2, 4),
           pan: get(:pan_1),
           rate: r * get(:sendA_2)# Play it forwards (1) or backwards (-1)
+
         human = rrand(-0.02, 0.02)
-        s = one_in(6) ? 4 : 1
-        sleep s*(get(:sendA_2) + 0.01) + human # The time between each slice
+        sleep 0.25 + human # The time between each slice
       end
       
     else

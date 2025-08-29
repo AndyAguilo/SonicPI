@@ -1,5 +1,6 @@
 with_fx :reverb do |rev|
   live_loop :dnbs do
+    use_bpm get(:master_bpm)
     
     control rev, room: get(:sendA_7), mix: get(:sendB_7)
     
@@ -28,6 +29,6 @@ with_fx :reverb do |rev|
       end
       
     end
-    sleep get(:sendA_2)+0.01
+    sleep 0.25
   end
 end

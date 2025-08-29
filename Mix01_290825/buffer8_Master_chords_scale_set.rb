@@ -14,6 +14,7 @@ set :shuffled_indices, (range 0, 6).shuffle
 
 with_fx :reverb, room: get(:sendB_8), mix: get(:sendA_8) do
   live_loop :jazzy_shuffled_progression do
+    use_bpm get(:master_bpm)
     if get(:part_8_on)
       # --- The "Non-Repeating" Logic ---
       # .tick moves through our shuffled deck one card at a time
@@ -42,7 +43,7 @@ with_fx :reverb, room: get(:sendB_8), mix: get(:sendA_8) do
     
     human = rrand(-0.01, 0.01)
     slp = [1, 1.25, 1.5, 1.75].choose
-    sleep (get(:sendA_2) * 7) + slp + human
+    sleep 7 + slp + human
   end
 end
 
