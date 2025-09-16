@@ -2,7 +2,7 @@
 # This is better than a global variable.
 set :slicer_pos, 0.0
 
-with_fx :panslicer, wave: 3, mix: get(:sendB_5) do
+with_fx :panslicer, wave: 1, mix: 0.5 do
   live_loop :slicer do
     use_bpm get(:master_bpm)
     if get(:part_5_on)
@@ -12,14 +12,15 @@ with_fx :panslicer, wave: 3, mix: get(:sendB_5) do
       
       # The main granulation loop
       32.times do
-        # FIX 2: Use the correct variable name: :part_3_amp
+        
         sample :loop_breakbeat,
           beat_stretch: 8,
           start: s,
           finish: s + 0.01,
-          amp: get(:amp_5)*rrand(2, 4),
+          amp: get(:amp_5)*rrand(2, 3),
           cutoff: rrand(60, 120),
-          pan: get(:pan_5)
+          pan: get(:pan_5),
+          hpf: 130*get(:sendB_5)
         
         sleep 0.025
       end
@@ -33,7 +34,7 @@ with_fx :panslicer, wave: 3, mix: get(:sendB_5) do
       
     end
     
-    sleep 2
+    sleep 2 * [get(:sendA_5), 0.01].max
     
   end
 end
