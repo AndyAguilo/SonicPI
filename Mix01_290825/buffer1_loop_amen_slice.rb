@@ -12,35 +12,30 @@ with_fx :reverb, mix: 0.5, room: 0.6 do |rev|
       
       # --- DYNAMIC MIDI CONTROL ---
       # Remap SendB to control the Reverb mix, making it more atmospheric
-      control rev, mix: get(:sendB_1), room: 0.5 # sendA_1 is now BPM
+      control rev, mix: 0.5, room: 0.5 # sendA_1 is now BPM
       
       # Play 8 slices over 2 beats to create a funky, syncopated rhythm
       8.times do
-        # The 'slice' option picks one of 16 chunks of the Amen break
-        # We use one_in() to add random, glitchy events.
-        s = rrand_i(0, 15)
-        
-        # 1 time in 8, play a slice backwards for a spooky feel
+        s = rrand_i(1, 3)
+        s2 = [1, 3, 5, 7,  9, 11, 13, 15].choose
         r = one_in(8) ? -0.6 : 0.6
         
         sample :loop_amen,
           beat_stretch: 2,
           num_slices: 16,
-          slice: s,
-          amp: get(:amp_1)*rrand(2, 4),
+          slice: s2,
+          amp: get(:amp_1)*rrand(2, 3),
           pan: get(:pan_1),
-          rate: r * get(:sendA_2)# Play it forwards (1) or backwards (-1)
-
+          rate: r * (get(:sendB_1)*3.2)+0.2
+        
         human = rrand(-0.02, 0.02)
-        sleep 0.25 + human # The time between each slice
+        slp = one_in(4) ? 1 : 0.5
+        sleep slp  + human
       end
       
     else
       sleep 2
     end
-    
-    
-    
     
     
   end
