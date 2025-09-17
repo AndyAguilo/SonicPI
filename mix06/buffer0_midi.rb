@@ -1,0 +1,153 @@
+# ===================================================================
+# ==  MASTER MIDI CONTROLLER - FULL MAPPING v1.0 (for Buffer 0)    ==
+# ===================================================================
+
+# --- CONFIGURATION ---
+MIDI_PORT = "launch_control_xl"
+STATUS_BYTE_CH1 = 0xB0           # The raw status byte for CC on Channel 1
+
+# --- LED COLOR DEFINITIONS (sent as the CC Value) ---
+LED_OFF = 0
+LED_RED = 15
+LED_GREEN = 60
+
+# --- INITIAL SETUP ---
+set :master_bpm, 87
+puts "Initializing 8 parts with full controls and setting LED states..."
+8.times do |i|
+  part_number = i + 1
+  
+  # --- Initialize all variables for each part ---
+  set "part_#{part_number}_on", false
+  set "amp_#{part_number}", 0.2
+  set "sendA_#{part_number}", 0.6
+  set "sendB_#{part_number}", 0.5
+  set "pan_#{part_number}", 0
+  
+  play_button_cc = i + 33
+  
+  # Set the initial state of the play buttons to RED
+  midi_raw STATUS_BYTE_CH1, play_button_cc, LED_RED, port: MIDI_PORT
+end
+#RADIO
+set :song_section, :A # Default to section A
+puts "Song structure initialized. Starting in Section A."
+# Set initial LED states for section buttons
+midi_raw STATUS_BYTE_CH1, 53, LED_GREEN, port: MIDI_PORT # A is ON
+midi_raw STATUS_BYTE_CH1, 54, LED_OFF, port: MIDI_PORT   # B is OFF
+midi_raw STATUS_BYTE_CH1, 55, LED_OFF, port: MIDI_PORT   # C is OFF
+
+puts "Initialization complete. Ready for action."
+
+
+# --- MAIN MIDI LISTENER LOOP ---
+live_loop :midi_master_controller do
+  use_real_time
+  controller_number, value = sync "/midi:launch_control_xl:1/control_change"
+  
+  # ============================================
+  # ==            KNOB CONTROLS               ==
+  # ============================================
+  
+  # --- NEW: Handle Send A Knobs (Top Row, CC 1-8) ---
+  if controller_number.between?(1, 8)
+    part_number = controller_number
+    # Scale MIDI 0-127 to a standard FX mix range of 0.0 to 1.0
+    scaled_value = value / 128.0
+    set "sendA_#{part_number}", scaled_value
+    puts "PART #{part_number} SEND A: #{scaled_value.round(2)}"
+  end
+  
+  # --- NEW: Handle Send B Knobs (Middle Row, CC 9-16) ---
+  if controller_number.between?(9, 16)
+    part_number = controller_number - 8
+    scaled_value = value / 128.0
+    set "sendB_#{part_number}", scaled_value
+    puts "PART #{part_number} SEND B: #{scaled_value.round(2)}"
+  end
+  
+  # --- NEW: Handle Pan Knobs (Bottom Row, CC 17-24) ---
+  # Note: The Launch Control XL has 8 knobs in this row (17-24)
+  if controller_number.between?(17, 24)
+    part_number = controller_number - 16
+    # Scale MIDI 0-127 to a pan range of -1.0 (L) to 1.0 (R)
+    scaled_value = (value / 127.0) * 2.0 - 1.0
+    set "pan_#{part_number}", scaled_value
+    puts "PART #{part_number} PAN: #{scaled_value.round(2)}"
+  end
+  
+  # ============================================
+  # ==           SLIDER & BUTTONS             ==
+  # ============================================
+  
+  # --- Handle Amplitude Sliders (CC 25-32) ---
+  if controller_number.between?(25, 32)
+    part_number = controller_number - 24
+    scaled_amp = (value / 127.0) * 1.5
+    set "amp_#{part_number}", scaled_amp
+  end
+  
+  # --- Handle Play/Stop Buttons (only on press, value 127) ---
+  if value == 127
+    
+    # Handle PLAY buttons (CC 33-40)
+    if controller_number.between?(33, 40)
+      part_number = controller_number - 32
+      set "part_#{part_number}_on", true
+      puts "PART #{part_number}: ON"
+      
+      play_button_cc = controller_number
+      midi_raw STATUS_BYTE_CH1, play_button_cc, LED_GREEN, port: MIDI_PORT
+    end
+    
+    # Handle STOP buttons (CC 41-48)
+    if controller_number.between?(41, 48)
+      part_number = controller_number - 40
+      set "part_#{part_number}_on", false
+      puts "PART #{part_number}: OFF"
+      
+      play_button_cc = controller_number - 8
+      midi_raw STATUS_BYTE_CH1, play_button_cc, LED_RED, port: MIDI_PORT
+    end
+    
+    if controller_number == 53
+      set :song_section, :A
+      puts "SONG SECTION: A"
+    elsif controller_number == 54
+      set :song_section, :B
+      puts "SONG SECTION: B"
+    elsif controller_number == 55
+      set :song_section, :C
+      puts "SONG SECTION: C"
+    end
+    
+    # --- NEW: Update Song Section LEDs ---
+    # If one of the section buttons was pressed, update all their lights.
+    if controller_number.between?(53, 55)
+      current_section = get(:song_section)
+      # Use a ternary operator for a clean one-liner per button
+      midi_raw STATUS_BYTE_CH1, 53, (current_section == :A ? LED_GREEN : LED_OFF), port: MIDI_PORT
+      midi_raw STATUS_BYTE_CH1, 54, (current_section == :B ? LED_GREEN : LED_OFF), port: MIDI_PORT
+      midi_raw STATUS_BYTE_CH1, 55, (current_section == :C ? LED_GREEN : LED_OFF), port: MIDI_PORT
+    end
+    
+  end
+end
+
+
+# --- BPM Conductor Loop ---
+# This loop's only job is to read the generic :sendA_1 value
+# and translate it into a master BPM for all other loops to use.
+live_loop :bpm_conductor do
+  # Get the current value of the first knob (0.0 to 1.0)
+  bpm_control_value = get(:sendA_1)
+  
+  # Map that value to a usable BPM range (e.g., 60-180 BPM)
+  new_bpm = (bpm_control_value * 120) + 60
+  
+  # Set the global master_bpm variable
+  set :master_bpm, new_bpm
+  
+  # This loop runs quickly to be responsive, but not so fast it hogs the CPU.
+  sleep 0.1
+end
