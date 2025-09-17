@@ -54,15 +54,15 @@ The order in which you run the buffers is critical.
 
 The `buffer0` script is pre-configured for the following MIDI CC mapping.
 
-| Control Group | MIDI CC Range | Mapped Variable in Sonic Pi | Description |
-|---|---|---|---|
-| **Send A Knobs** | 1 - 8 | `get(:sendA_#)` | Controls Send A. **CC 1 is Global BPM.** |
-| **Send B Knobs** | 9 - 16 | `get(:sendB_#)` | Controls Send B. |
-| **Pan/Device Knobs**| 17 - 24 | `get(:pan_#)` | Controls Panning. |
-| **Sliders** | 25 - 32 | `get(:amp_#)` | Controls Amplitude (volume). |
-| **Play Buttons** | 33 - 40 | `get(:part_#_on)` (true) | Turns a part ON. Lights up GREEN. |
-| **Stop Buttons** | 41 - 48 | `get(:part_#_on)` (false) | Turns a part OFF. Play button lights RED. |
-| **Song Section** | 53 / 54 / 55 | `get(:song_section)` | Switches song to Section **A**, **B**, or **C**. Acts like radio buttons with LED feedback. |
+| Control Group       | MIDI CC Range | Mapped Variable in Sonic Pi | Description                                      |
+| ------------------- | ------------- | --------------------------- | ------------------------------------------------ |
+| **Send A Knobs**    | 1 - 8         | `get(:sendA_#)`             | Controls Send A for parts 1-8. **CC 1 is Global BPM.** |
+| **Send B Knobs**    | 9 - 16        | `get(:sendB_#)`             | Controls Send B for parts 1-8.                   |
+| **Pan/Device Knobs**| 17 - 24       | `get(:pan_#)`               | Controls Panning for parts 1-8.                  |
+| **Sliders**         | 25 - 32       | `get(:amp_#)`               | Controls Amplitude (volume) for parts 1-8.       |
+| **Play Buttons**    | 33 - 40       | `get(:part_#_on)` (true)    | Turns a musical part on. Lights up GREEN.        |
+| **Stop Buttons**    | 41 - 48       | `get(:part_#_on)` (false)   | Turns a musical part off. Corresponding Play button lights up RED. |
+| **Song Section**    | 53 / 54 / 55  | `get(:song_section)`        | if A - elsif B - elsif C...Acts like radio buttons with LED feedback. |
 
 *(Where `#` is the part number from 1 to 8)*
 
