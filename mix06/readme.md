@@ -7,9 +7,9 @@ https://audius.co/andyserra/algo-sexta-live-coding
 
 A modular, 8-part live coding environment for Sonic Pi, designed for the **Novation Launch Control XL**.
 
-This project transforms Sonic Pi into a powerful 8-part instrument with live arrangement capabilities. It's built around a central "master controller" (`buffer0`) that handles all MIDI input and LED feedback, leaving the other 8 buffers free to be used as independent musical parts or "tracks."
-
-<img width="535" height="482" alt="Novation Launch Control XL Custom Mapping" src="https://github.com/user-attachments/assets/89561a08-d34c-4f20-acf3-9d10b04dd549" />
+This project transforms Sonic Pi into a powerful 8-part instrument with live arrangement capabilities.
+It's built around a central "master controller" (`buffer0`) that handles all MIDI input and LED feedback,
+ leaving the other 8 buffers free to be used as independent musical parts or "tracks."
 
 ## Features
 
